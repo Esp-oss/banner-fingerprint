@@ -46,7 +46,8 @@ rules:
     product: Jetty
     match:
       type: regex
-      pattern: '(?i)\bServer:\s*Jetty/(?P<version>[0-9][^\s;()\r\n,]*)'
+      # Jetty 有两种常见写法：`Jetty/9.4.51` 与 `Jetty(9.4.51.v20230217)`。
+      pattern: '(?i)\bServer:\s*Jetty[/ (](?P<version>[0-9][^\s;()\r\n,]*)'
     base_confidence: 0.85
 
   - id: http-iis

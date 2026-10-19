@@ -75,6 +75,41 @@ func TestIdentifySampleDataset(t *testing.T) {
 	}
 }
 
+func TestIdentifyCommonVariants(t *testing.T) {
+	eng := newTestEngine(t)
+	cases := []struct {
+		name     string
+		input    model.Input
+		protocol string
+		product  string
+		version  string
+	}{
+		{
+			"jetty-parenthesized-version",
+			model.Input{IP: "1.1.1.1", Port: 8080, Banner: "HTTP/1.1 200 OK\r\nServer: Jetty(9.4.51.v20230217)"},
+			"HTTP", "Jetty", "9.4.51.v20230217",
+		},
+		{
+			"redis-readonly",
+			model.Input{IP: "1.1.1.2", Port: 6379, Banner: "-READONLY You can't write against a read only replica."},
+			"Redis", "Redis", "",
+		},
+		{
+			"redis-loading",
+			model.Input{IP: "1.1.1.3", Port: 6379, Banner: "-LOADING Redis is loading the dataset in memory"},
+			"Redis", "Redis", "",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := eng.Identify(tc.input)
+			if got.Protocol != tc.protocol || got.Product != tc.product || got.Version != tc.version {
+				t.Fatalf("got %+v, want protocol=%q product=%q version=%q", got, tc.protocol, tc.product, tc.version)
+			}
+		})
+	}
+}
+
 func TestIdentifyNeverPanics(t *testing.T) {
 	eng := newTestEngine(t)
 	inputs := []model.Input{

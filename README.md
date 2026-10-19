@@ -182,7 +182,7 @@ docker compose down
   "status": "ok",
   "version": "1.0.0",
   "uptime_s": 11.47,
-  "rules": { "files": 6, "loaded": 32, "source": "/app/rules" }
+  "rules": { "files": 6, "loaded": 38, "source": "/app/rules" }
 }
 ```
 

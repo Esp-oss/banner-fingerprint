@@ -1,5 +1,4 @@
-# 显式指定独立的 Compose 项目名：避免与本机其他同名项目（如另一个 banner-fingerprint
-# 目录）互相覆盖容器与网络；评估环境为全新机器，项目名不影响一键启动。
+# 显式固定 Compose 项目名：避免与宿主机上其他 Compose 项目重名而互相接管容器与网络。
 name: banner-fingerprint-esp
 
 # 网络拓扑：

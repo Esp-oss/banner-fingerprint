@@ -65,3 +65,16 @@ rules:
       pattern: '(?i)^-ERR\b'
     base_confidence: 0.70
     port_bonus: 0.05
+
+  # 兜底：任意 Redis 错误码（READONLY / LOADING / MISCONF / OOM / BUSY 等）。
+  # 仅限定 6379 端口先验，避免把其他以 "-" 开头的文本误判为 Redis。
+  - id: redis-error-generic
+    priority: 60
+    protocol: Redis
+    product: Redis
+    ports: [6379]
+    match:
+      type: regex
+      pattern: '^-[A-Z][A-Z0-9]+(?:\s|$)'
+    base_confidence: 0.65
+    port_bonus: 0.05
