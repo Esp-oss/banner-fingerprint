@@ -11,10 +11,10 @@ fmt:
 	gofmt -w cmd internal
 
 run-server:
-	go run ./cmd/server -addr :7070 -rules ./rules
+	go run ./cmd/server -addr :8080 -rules ./rules
 
 run-client:
-	go run ./cmd/client -in ./testdata/input.json -server http://127.0.0.1:7070
+	go run ./cmd/client -in ./testdata/input.json -server http://127.0.0.1:8080
 
 up:
 	docker compose up -d --build
@@ -29,7 +29,7 @@ client:
 	docker compose --profile client run --rm client
 
 smoke:
-	curl -s http://127.0.0.1:7070/health
-	curl -s -X POST http://127.0.0.1:7070/fingerprint \
+	curl -s http://127.0.0.1:8080/health
+	curl -s -X POST http://127.0.0.1:8080/fingerprint \
 		-H "Content-Type: application/json" \
 		-d '[{"ip":"1.2.3.4","port":22,"banner":"SSH-2.0-OpenSSH_8.9p1 Ubuntu-3"}]'

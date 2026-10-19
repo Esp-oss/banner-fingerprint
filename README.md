@@ -60,11 +60,11 @@ Go 代码，也无需重建镜像（容器内以只读卷挂载）。
 docker compose up -d --build
 ```
 
-启动后（宿主端口为 `7070`，映射到容器内 `8080`；避开本机其他项目常用的 8080）：
+启动后（宿主端口 `8080`，与容器内端口一致）：
 
 ```bash
-curl http://127.0.0.1:7070/health
-curl -X POST http://127.0.0.1:7070/fingerprint \
+curl http://127.0.0.1:8080/health
+curl -X POST http://127.0.0.1:8080/fingerprint \
   -H 'Content-Type: application/json' \
   -d '[{"ip":"1.2.3.4","port":22,"banner":"SSH-2.0-OpenSSH_8.9p1 Ubuntu-3"}]'
 ```
@@ -195,7 +195,7 @@ Docker HEALTHCHECK 通过二进制内置的 `-healthcheck` 子命令调用该接
 
 ```bash
 # 本地二进制
-go run ./cmd/client -in ./testdata/input.json -server http://127.0.0.1:7070 -out ./results.json
+go run ./cmd/client -in ./testdata/input.json -server http://127.0.0.1:8080 -out ./results.json
 
 # 容器
 docker compose --profile client run --rm client
@@ -204,7 +204,7 @@ docker compose --profile client run --rm client
 | 参数 | 环境变量 | 默认值 | 说明 |
 |---|---|---|---|
 | `-in` | - | `testdata/input.json` | 输入文件 |
-| `-server` | `FINGERPRINT_SERVER` | `http://127.0.0.1:7070` | 服务地址 |
+| `-server` | `FINGERPRINT_SERVER` | `http://127.0.0.1:8080` | 服务地址 |
 | `-out` | - | 空 | 可选，结果写入 JSON |
 | `-timeout` | - | `30s` | 请求超时 |
 
@@ -365,8 +365,8 @@ go build -o bin/server ./cmd/server
 go build -o bin/client ./cmd/client
 
 # 本地运行
-./bin/server -addr :7070 -rules ./rules
-./bin/client -in ./testdata/input.json -server http://127.0.0.1:7070
+./bin/server -addr :8080 -rules ./rules
+./bin/client -in ./testdata/input.json -server http://127.0.0.1:8080
 
 # Compose 全链路
 docker compose up -d --build
@@ -403,7 +403,7 @@ docker compose --profile client run --rm client
 | `HTTP_ADDR` | `:8080` | server 监听地址（容器内） |
 | `RULES_DIR` | `./rules` | 规则目录（容器内为 `/app/rules`） |
 | `HEALTHCHECK_URL` | `http://127.0.0.1:8080/health` | 健康检查地址（容器内） |
-| `FINGERPRINT_SERVER` | `http://127.0.0.1:7070` | client 默认服务地址（宿主侧） |
+| `FINGERPRINT_SERVER` | `http://127.0.0.1:8080` | client 默认服务地址（宿主侧） |
 | `GOMAXPROCS` | 继承 | 容器内限制为 2 |
 
 命令行参数优先级高于环境变量。

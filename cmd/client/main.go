@@ -26,7 +26,7 @@ import (
 
 func main() {
 	input := flag.String("in", "testdata/input.json", "path to the input JSON file")
-	server := flag.String("server", env("FINGERPRINT_SERVER", "http://127.0.0.1:7070"), "fingerprint server base URL")
+	server := flag.String("server", env("FINGERPRINT_SERVER", "http://127.0.0.1:8080"), "fingerprint server base URL")
 	output := flag.String("out", "", "optional path to write results as JSON")
 	timeout := flag.Duration("timeout", 30*time.Second, "request timeout")
 	flag.Parse()
