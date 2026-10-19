@@ -1,0 +1,50 @@
+# MySQL / MariaDB 指纹规则
+# MySQL 握手包为二进制协议：4 字节包头后是协议版本 0x0a，随后是 NUL 结尾的版本字符串。
+# 同时匹配原始字节（\x00...\x0a）与常见的 mysql_native_password 文本片段。
+version: 1
+rules:
+  - id: mysql-mariadb-handshake
+    priority: 120
+    protocol: MySQL
+    product: MariaDB
+    ports: [3306, 33060]
+    match:
+      type: regex
+      pattern: '(?i)\x00\x00\x00\x0a(?P<version>[0-9][^\x00\r\n]*mariadb[^\x00\r\n]*)'
+    os_hint:
+      - { pattern: '(?i)ubuntu', value: Ubuntu }
+      - { pattern: '(?i)debian', value: Debian }
+    base_confidence: 0.90
+    port_bonus: 0.05
+
+  - id: mysql-handshake
+    priority: 100
+    protocol: MySQL
+    product: MySQL
+    ports: [3306, 33060]
+    match:
+      type: regex
+      pattern: '\x00\x00\x00\x0a(?P<version>[0-9]+\.[0-9]+\.[0-9]+[0-9A-Za-z.\-]*)'
+    os_hint:
+      - { pattern: '(?i)ubuntu', value: Ubuntu }
+      - { pattern: '(?i)debian', value: Debian }
+    base_confidence: 0.90
+    port_bonus: 0.05
+
+  - id: mysql-native-password
+    priority: 10
+    protocol: MySQL
+    product: MySQL
+    match:
+      type: contains
+      pattern: 'mysql_native_password'
+    base_confidence: 0.70
+
+  - id: mysql-caching-sha2
+    priority: 10
+    protocol: MySQL
+    product: MySQL
+    match:
+      type: contains
+      pattern: 'caching_sha2_password'
+    base_confidence: 0.70

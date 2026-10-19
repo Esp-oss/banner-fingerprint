@@ -1,0 +1,55 @@
+# SSH 指纹规则
+# 匹配顺序由 priority 决定（高优先级先匹配），最终结果取置信度最高者。
+# 命名捕获组 version 会被提取为版本号；os_hint 从 banner 中提取发行版线索。
+version: 1
+rules:
+  - id: ssh-openssh
+    priority: 100
+    protocol: SSH
+    product: OpenSSH
+    ports: [22, 2222]
+    match:
+      type: regex
+      pattern: '(?im)^SSH-(?P<protover>[0-9.]+)-OpenSSH_(?P<version>[0-9][0-9A-Za-z._\-]*)'
+    os_hint:
+      - { pattern: '(?i)Ubuntu', value: Ubuntu }
+      - { pattern: '(?i)Debian', value: Debian }
+      - { pattern: '(?i)FreeBSD', value: FreeBSD }
+      - { pattern: '(?i)Raspbian', value: Raspbian }
+    base_confidence: 0.90
+    port_bonus: 0.05
+
+  - id: ssh-openssh-windows
+    priority: 99
+    protocol: SSH
+    product: OpenSSH
+    ports: [22, 2222]
+    match:
+      type: regex
+      pattern: '(?im)^SSH-[0-9.]+-OpenSSH_for_Windows_(?P<version>[0-9][0-9A-Za-z._\-]*)'
+    os_hint:
+      - { pattern: '(?i)Windows', value: Windows }
+    base_confidence: 0.90
+    port_bonus: 0.05
+
+  - id: ssh-dropbear
+    priority: 90
+    protocol: SSH
+    product: Dropbear
+    ports: [22, 2222]
+    match:
+      type: regex
+      pattern: '(?im)^SSH-[0-9.]+-dropbear(?:_(?P<version>[0-9][0-9A-Za-z._\-]*))?'
+    base_confidence: 0.85
+    port_bonus: 0.05
+
+  # 兜底：识别协议但不猜测产品，避免把非 OpenSSH/Dropbear 的服务误标为具体产品。
+  - id: ssh-generic
+    priority: 10
+    protocol: SSH
+    ports: [22, 2222]
+    match:
+      type: regex
+      pattern: '(?im)^SSH-[0-9.]+-'
+    base_confidence: 0.70
+    port_bonus: 0.05

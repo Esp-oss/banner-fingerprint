@@ -1,0 +1,4 @@
+bin/
+results.json
+*.out
+.DS_Store

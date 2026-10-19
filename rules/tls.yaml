@@ -1,0 +1,20 @@
+# TLS 指纹规则
+# TLS 记录头为二进制：content_type(0x16 handshake) + version_major(0x03)。
+# 使用 bytes_hex 对原始字节做前缀匹配，避免把二进制当作文本正则处理。
+version: 1
+rules:
+  - id: tls-handshake
+    priority: 300
+    protocol: TLS
+    match:
+      type: bytes_hex
+      pattern: '1603'
+    base_confidence: 0.60
+
+  - id: tls-alert
+    priority: 290
+    protocol: TLS
+    match:
+      type: bytes_hex
+      pattern: '1503'
+    base_confidence: 0.50

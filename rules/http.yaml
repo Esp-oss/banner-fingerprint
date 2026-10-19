@@ -1,0 +1,143 @@
+# HTTP/HTTPS 指纹规则
+# 内容优先：即使服务跑在 8443/8888 等非标准端口，也依据 Server 头识别产品。
+# 端口仅用于置信度加权，默认不加分（HTTP 端口分布过于分散）。
+version: 1
+rules:
+  - id: http-nginx
+    priority: 100
+    protocol: HTTP
+    product: nginx
+    ports: [80, 443, 8080, 8443, 8888]
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*nginx/(?P<version>[0-9][^\s;()\r\n,]*)'
+    os_hint:
+      - { pattern: '(?i)Ubuntu', value: Ubuntu }
+      - { pattern: '(?i)Debian', value: Debian }
+      - { pattern: '(?i)CentOS', value: CentOS }
+    base_confidence: 0.90
+
+  - id: http-openresty
+    priority: 99
+    protocol: HTTP
+    product: OpenResty
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*openresty/(?P<version>[0-9][^\s;()\r\n,]*)'
+    base_confidence: 0.90
+
+  - id: http-apache
+    priority: 100
+    protocol: HTTP
+    product: Apache
+    ports: [80, 443, 8080, 8443, 8888]
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*Apache/(?P<version>[0-9][^\s;()\r\n,]*)'
+    os_hint:
+      - { pattern: '(?i)Ubuntu', value: Ubuntu }
+      - { pattern: '(?i)Debian', value: Debian }
+      - { pattern: '(?i)CentOS', value: CentOS }
+    base_confidence: 0.90
+
+  - id: http-jetty
+    priority: 100
+    protocol: HTTP
+    product: Jetty
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*Jetty/(?P<version>[0-9][^\s;()\r\n,]*)'
+    base_confidence: 0.85
+
+  - id: http-iis
+    priority: 100
+    protocol: HTTP
+    product: Microsoft-IIS
+    ports: [80, 443, 8080, 8443, 8888]
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*Microsoft-IIS/(?P<version>[0-9][^\s;()\r\n,]*)'
+    base_confidence: 0.90
+
+  - id: http-tomcat
+    priority: 95
+    protocol: HTTP
+    product: Apache Tomcat
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*Apache-Coyote/(?P<version>[0-9][^\s;()\r\n,]*)'
+    base_confidence: 0.85
+
+  - id: http-caddy
+    priority: 95
+    protocol: HTTP
+    product: Caddy
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*Caddy(?:\s+(?P<version>[0-9][^\s;()\r\n,]*))?'
+    base_confidence: 0.85
+
+  - id: http-lighttpd
+    priority: 95
+    protocol: HTTP
+    product: lighttpd
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*lighttpd/(?P<version>[0-9][^\s;()\r\n,]*)'
+    base_confidence: 0.90
+
+  # 以下为"已知产品但 banner 被截断/未带版本"的兜底规则。
+  - id: http-nginx-product-only
+    priority: 60
+    protocol: HTTP
+    product: nginx
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*nginx\b'
+    base_confidence: 0.75
+
+  - id: http-apache-product-only
+    priority: 60
+    protocol: HTTP
+    product: Apache
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*Apache\b'
+    base_confidence: 0.75
+
+  - id: http-jetty-product-only
+    priority: 60
+    protocol: HTTP
+    product: Jetty
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*Jetty\b'
+    base_confidence: 0.72
+
+  - id: http-iis-product-only
+    priority: 60
+    protocol: HTTP
+    product: Microsoft-IIS
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*Microsoft-IIS\b'
+    base_confidence: 0.75
+
+  # 兜底：只识别协议与 HTTP 状态行，不猜测产品。
+  # 兼容 HTTP/1.0、HTTP/1.1 与 HTTP/2 状态行。
+  - id: http-generic
+    priority: 10
+    protocol: HTTP
+    match:
+      type: regex
+      pattern: '(?i)^HTTP/[0-9](?:\.[0-9])?\s+[1-5][0-9]{2}'
+    base_confidence: 0.60
+
+  # 再兜底：banner 被截断只剩响应头时，只要出现 Server 头仍可判定为 HTTP。
+  - id: http-server-header-only
+    priority: 5
+    protocol: HTTP
+    match:
+      type: regex
+      pattern: '(?i)\bServer:\s*[A-Za-z]'
+    base_confidence: 0.55

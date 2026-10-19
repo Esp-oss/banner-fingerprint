@@ -1,0 +1,79 @@
+﻿# FTP 指纹规则
+# FTP 服务通常以 220 欢迎语暴露产品与版本。
+version: 1
+rules:
+  - id: ftp-proftpd
+    priority: 100
+    protocol: FTP
+    product: ProFTPD
+    ports: [21, 2121]
+    match:
+      type: regex
+      pattern: '(?i)^220[ -][^\r\n]*?ProFTPD(?:[ /](?P<version>[0-9][0-9A-Za-z.\-]*))?'
+    base_confidence: 0.90
+    port_bonus: 0.05
+
+  - id: ftp-vsftpd
+    priority: 100
+    protocol: FTP
+    product: vsftpd
+    ports: [21, 2121]
+    match:
+      type: regex
+      pattern: '(?i)^220[ -][^\r\n]*?vsFTPd(?:[ /](?P<version>[0-9][0-9A-Za-z.\-]*))?'
+    base_confidence: 0.90
+    port_bonus: 0.05
+
+  - id: ftp-pureftpd
+    priority: 100
+    protocol: FTP
+    product: Pure-FTPd
+    ports: [21, 2121]
+    match:
+      type: regex
+      pattern: '(?i)^220[ -][^\r\n]*?Pure-FTPd(?:[ /](?P<version>[0-9][0-9A-Za-z.\-]*))?'
+    base_confidence: 0.80
+    port_bonus: 0.05
+
+  - id: ftp-filezilla
+    priority: 100
+    protocol: FTP
+    product: FileZilla Server
+    ports: [21, 2121]
+    match:
+      type: regex
+      pattern: '(?i)^220[ -][^\r\n]*?FileZilla Server(?:[ /](?P<version>[0-9][0-9A-Za-z.\-]*))?'
+    base_confidence: 0.85
+    port_bonus: 0.05
+
+  - id: ftp-microsoft
+    priority: 90
+    protocol: FTP
+    product: Microsoft FTP Service
+    ports: [21, 2121]
+    match:
+      type: regex
+      pattern: '(?i)^220[ -][^\r\n]*Microsoft FTP Service'
+    base_confidence: 0.85
+    port_bonus: 0.05
+
+  # 兜底：220 欢迎语只能说明是 FTP 类服务，不猜测产品。
+  - id: ftp-generic-220
+    priority: 10
+    protocol: FTP
+    ports: [21, 2121]
+    match:
+      type: regex
+      pattern: '(?i)^220[ -]'
+    base_confidence: 0.55
+    port_bonus: 0.05
+
+  - id: ftp-generic-530
+    priority: 5
+    protocol: FTP
+    ports: [21, 2121]
+    match:
+      type: regex
+      pattern: '(?i)^530[ -]'
+    base_confidence: 0.50
+    port_bonus: 0.05

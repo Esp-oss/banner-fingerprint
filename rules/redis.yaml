@@ -1,0 +1,67 @@
+# Redis 指纹规则
+# Redis 无统一 banner，只能依据协议响应特征识别；版本需 INFO 输出中的 redis_version。
+version: 1
+rules:
+  - id: redis-info
+    priority: 120
+    protocol: Redis
+    product: Redis
+    ports: [6379]
+    match:
+      type: regex
+      pattern: '(?i)redis_version:(?P<version>[0-9][0-9A-Za-z.\-]*)'
+    base_confidence: 0.90
+    port_bonus: 0.05
+
+  - id: redis-noauth
+    priority: 100
+    protocol: Redis
+    product: Redis
+    ports: [6379]
+    match:
+      type: regex
+      pattern: '(?i)^-NOAUTH\b'
+    base_confidence: 0.85
+    port_bonus: 0.05
+
+  - id: redis-wrongtype
+    priority: 90
+    protocol: Redis
+    product: Redis
+    ports: [6379]
+    match:
+      type: regex
+      pattern: '(?i)^-WRONGTYPE\b'
+    base_confidence: 0.80
+
+  - id: redis-wrongpass
+    priority: 90
+    protocol: Redis
+    product: Redis
+    ports: [6379]
+    match:
+      type: regex
+      pattern: '(?i)^-WRONGPASS\b'
+    base_confidence: 0.80
+
+  - id: redis-pong
+    priority: 80
+    protocol: Redis
+    product: Redis
+    ports: [6379]
+    match:
+      type: regex
+      pattern: '(?i)^\+PONG\b'
+    base_confidence: 0.70
+    port_bonus: 0.05
+
+  - id: redis-err
+    priority: 70
+    protocol: Redis
+    product: Redis
+    ports: [6379]
+    match:
+      type: regex
+      pattern: '(?i)^-ERR\b'
+    base_confidence: 0.70
+    port_bonus: 0.05
